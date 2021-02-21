@@ -1,8 +1,10 @@
 package com.github.eltonsandre.maskutils;
 
+import com.github.eltonsandre.maskutils.model.Cartao;
 import com.github.eltonsandre.maskutils.model.Endereco;
 import com.github.eltonsandre.maskutils.model.Telefone;
 import com.github.eltonsandre.maskutils.model.Usuario;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -15,10 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * date 09/03/2019 15:05
  */
 
-public class MaskUtilsTest {
+class MaskUtilsTest {
 
     @Test
-    public void test_MaskGroups_AnyGroup() {
+    @DisplayName("Mascarando para qualquer grupo")
+    void test_MaskGroups_AnyGroup() {
         final Usuario mask = this.userBuilderMock();
         MaskUtils.mask(mask);
 
@@ -31,6 +34,7 @@ public class MaskUtilsTest {
     }
 
     @Test
+    @DisplayName("Mascarando para o grupo 'test' ")
     void test_MaskGroups_TestGroup() {
         final Usuario mask = (Usuario) MaskUtils.mask(this.userBuilderMock(), "test");
 
@@ -43,6 +47,7 @@ public class MaskUtilsTest {
     }
 
     @Test
+    @DisplayName("Mascarando objetos agregados")
     void test_MaskObjectData_AnyGroup() {
         final Usuario mask = this.userBuilderMock();
         MaskUtils.mask(mask);
@@ -59,11 +64,31 @@ public class MaskUtilsTest {
     }
 
     @Test
+    @DisplayName("Mascarando objetos agregados para o grupo 'test' ")
     void test_MaskObjectData_TestGroup() {
         final Usuario mask = (Usuario) MaskUtils.mask(this.userBuilderMock(), "test");
         assertEquals("notMask", mask.getNotMask());
 
         System.out.println(mask);
+    }
+
+    @Test
+    @DisplayName("Mascarando dados do cartão para o grupo 'dado.pci' ")
+    void test_MaskCard_PCI_TestGroup() {
+        final Cartao mask = (Cartao) MaskUtils.mask(this.cardBuilderMock(), "dado.pci");
+        assertEquals("5498 **** **** 0032", mask.getNumero());
+
+        System.out.println(mask);
+    }
+
+    public final Cartao cardBuilderMock() {
+        return Cartao.builder()
+                .nome("John Connor")
+                .numero("5498 0305 8674 0032")
+                .anoValidade("2030")
+                .cvv("123")
+                .mesValidade("12")
+                .build();
     }
 
     public final Usuario userBuilderMock() {
