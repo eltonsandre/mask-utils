@@ -1,12 +1,10 @@
 plugins {
+    id 'idea'
     id 'java'
     id "java-library"
 
-    id 'maven'
     id 'maven-publish'
     id 'signing'
-
-    id 'idea'
 }
 
 repositories {
@@ -14,19 +12,20 @@ repositories {
     maven {
         url = uri('https://repo.maven.apache.org/maven2/')
     }
+    mavenCentral()
 }
 
 dependencies {
     ['annotationProcessor', 'compileOnly', 'testAnnotationProcessor', 'testCompileOnly'].each {
-        config -> add(config, 'org.projectlombok:lombok:1.18.16')
+        config -> add(config, 'org.projectlombok:lombok:1.18.22')
     }
 
-    implementation 'org.apache.commons:commons-lang3:3.9'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 }
 
 group = 'com.github.eltonsandre.utils'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.1'
 description = 'Util para ofuscar dados de objetos'
 
 java.sourceCompatibility = JavaVersion.VERSION_1_8
@@ -43,86 +42,13 @@ java {
     withSourcesJar()
 }
 
-allprojects {
-    ext.'signing.keyId' = System.getenv('SIGNING_KEY_ID')
-    ext.'signing.password' = System.getenv('SIGNING_PASSWORD')
-    ext.'signing.secretKeyRingFile' = System.getenv('SIGNING_SECRET_KEY_RING_FILE')
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-
-            artifactId this.name
-            version  this.version
-
-            from components.java
-
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
-                }
-            }
-
-            pom {
-                name = project.name
-                description = this.description
-                url = 'https://github.com/eltonsandre/mask-utils'
-
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution = 'repo'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id = 'eltonsandre'
-                        name = 'Elton Sandré'
-                        email = 'elton.santos.andre@gmail.com'
-                        organization {
-                            name ='eltonsandre'
-                            url = 'https://github.com/eltonsandre'
-                        }
-                    }
-                }
-
-                scm {
-                    connection = 'scm:git:git://github.com/eltonsandre/mask-util.git'
-                    developerConnection = 'scm:git:ssh://github.com:eltonsandre/mask-util.git'
-                    url = 'http://github.com/eltonsandre/mask-utils/tree/master'
-                }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots'
-
-            url = version.toUpperCase().endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-
-            credentials {
-                username sonatypeUsername
-                password sonatypePassword
-            }
-        }
-    }
-
-}
-
-signing {
-    sign publishing.publications.mavenJava
-}
-
 javadoc {
     if (JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption('html5', true)
     }
+}
+
+wrapper() {
+    gradleVersion = '7.3.1'
+    distributionUrl = distributionUrl.replace('bin', 'all')
 }
